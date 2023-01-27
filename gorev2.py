@@ -323,6 +323,8 @@ print("eve ulasildi")
 time.sleep(5)
 print("inis yapiliyor")
 iha.mode = VehicleMode("LAND")
+#deneme deneme deneme
+
 
 
 
