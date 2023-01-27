@@ -1,1 +1,2 @@
-# VEGA
+# VEGA - Otonom kalkış ve yönelme:
+Vega insansız hava aracımızın uçuş kontrol kartı otonom kalkışa uygun olarak ayarlanmıştır. Yani Vega insansız hava aracımız kalkışını otonom olarak yapacaktır. Kalkışını başarılı bir şekilde tamamladıktan sonra serbest uçuşa başlayacak ve etrafındaki takip edilebilir durumda olan hedefleri aramaya başlayacaktır. Eğer etrafında takip edilebilir durumda bir hedef varsa bunun tespitini doğru ve hızlı bir şekilde yapacak ve hedefe doğru açıyla ve doğru hızda yönelim sağlayacaktır.
