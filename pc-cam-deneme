@@ -1,0 +1,41 @@
+import cv2
+import numpy as np
+
+# Load the video or image sequence from the computer's webcam
+cap = cv2.VideoCapture(0)
+
+# Initialize the first frame
+ret, frame = cap.read()
+
+# Convert the first frame to the HSV color space
+hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+# Define the range of the object color in the HSV color space
+lower_color = np.array([0, 0, 0])
+upper_color = np.array([255, 255, 255])
+
+# Threshold the HSV image to get only the object color
+mask = cv2.inRange(hsv_frame, lower_color, upper_color)
+
+# Get the moments of the thresholded image
+M = cv2.moments(mask)
+
+# Extract the x and y coordinates of the center of the object
+if M["m00"] != 0:
+    cx = int(M["m10"] / M["m00"])
+    cy = int(M["m01"] / M["m00"])
+else:
+    cx, cy = 0, 0
+
+# Draw a bounding box or contour around the object
+cv2.rectangle(frame, (cx - 25, cy - 25), (cx + 25, cy + 25), (0, 255, 0), 2)
+
+# Display the output image
+cv2.imshow("Tracked Object", frame)
+cv2.waitKey(1)
+
+# Release the video or image sequence
+cap.release()
+
+# Close all windows
+cv2.destroyAllWindows()
