@@ -1,0 +1,48 @@
+# VİDEOYU ÖNCE AÇIP FRAME SEÇİP SONRA O FREAMEİ TAKİP ETME #
+
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture(0)
+
+# Select a ROI
+def select_roi(frame):
+    r = cv2.selectROI(frame)
+    return r
+
+while True:
+    ret, frame = cap.read()
+    if ret == True:
+        roi = select_roi(frame)
+        cv2.destroyAllWindows()
+        break
+
+# Initialize tracker
+tracker = cv2.TrackerKCF_create()
+tracker.init(frame, roi)
+
+while True:
+    # Read a new frame
+    ret, frame = cap.read()
+
+    # Update tracker
+    success, roi = tracker.update(frame)
+
+    # Draw a rectangle around the ROI
+    if success:
+        x, y, w, h = tuple(map(int, roi))
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    # Display the result
+    cv2.imshow("Tracking", frame)
+
+    # Exit if ESC pressed
+    k = cv2.waitKey(1) & 0xff
+    if k == 27:
+        break
+
+# Release the VideoCapture object
+cap.release()
+
+# Close all windows
+cv2.destroyAllWindows()

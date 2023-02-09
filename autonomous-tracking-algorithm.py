@@ -1,59 +1,61 @@
+# Değişik kaynaklardan bakarak bir otonom izleme algoritması yazdım çalıştırabilirsek mükemmel olur #
+
 import cv2
 import numpy as np
 
-# Define the tracking algorithm
+# İzleme algoritmasını tanımlayın
 def track_uav(frame, roi):
-    # Convert the frame to grayscale
+    # Çerçeveyi gri tonlamaya dönüştür
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
-    # Define the HSV color range for the UAV
+    # IHA için HSV renk aralığını tanımlayın
     lower_hsv = np.array([0, 0, 0])
     upper_hsv = np.array([180, 255, 80])
     
-    # Threshold the frame to extract the UAV
+    # IHA'yı çıkarmak için çerçeveyi eşikleyin
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower_hsv, upper_hsv)
     
-    # Use the CAMShift algorithm to track the UAV
+    # IHA'yı izlemek için CAMShift algoritmasını kullanın
     track_window = cv2.CamShift(mask, roi, term_crit)
     center, roi = cv2.meanShift(mask, roi, term_crit)
     
-    # Draw a rectangle around the UAV
+    # İHA'nın etrafına bir dikdörtgen çizin
     x, y, w, h = track_window
     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
     
-    # Return the updated frame
+    # Güncellenen çerçeveyi döndür
     return frame
 
-# Load the video
+# Videoyu yükle
 video = cv2.VideoCapture('uav_video.avi')
 
-# Define the termination criteria for the CAMShift algorithm
+# CAMShift algoritması için sonlandırma kriterlerini tanımlayın
 term_crit = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
 
-# Select the initial ROI for the UAV
+# İHA için ilk ROI'yi seçin
 _, frame = video.read()
 roi = cv2.selectROI(frame, False)
 
-# Process each frame of the video
+# Videonun her karesini işleyin
 while True:
-    # Read the next frame
+    # Sonraki kareyi oku
     _, frame = video.read()
     
-    # Break the loop if there are no more frames
+    # Başka çerçeve yoksa döngüyü kırın
     if frame is None:
         break
     
-    # Track the UAV in the current frame
+    # İHA'yı geçerli çerçevede izleyin
     frame = track_uav(frame, roi)
     
-    # Display the updated frame
+    # Güncellenen çerçeveyi göster
     cv2.imshow('UAV Tracking', frame)
     
-    # Break the loop if the 'q' key is pressed
+    # 'q' tuşuna basılırsa döngüyü kırın
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release the video and destroy all windows
+# Videoyu yayınlayın ve tüm pencereleri yok edin
 video.release()
 cv2.destroyAllWindows()

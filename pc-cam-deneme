@@ -1,41 +1,59 @@
 import cv2
 import numpy as np
 
-# Load the video or image sequence from the computer's webcam
+# Create a video capture object
 cap = cv2.VideoCapture(0)
 
-# Initialize the first frame
-ret, frame = cap.read()
+# Define the tracker to use
+tracker = cv2.TrackerKCF_create()
 
-# Convert the first frame to the HSV color space
-hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# Define the ROI to track
+roi = None
 
-# Define the range of the object color in the HSV color space
-lower_color = np.array([0, 0, 0])
-upper_color = np.array([255, 255, 255])
+# Start the video capture loop
+while True:
+    # Read a frame from the video capture object
+    ret, frame = cap.read()
 
-# Threshold the HSV image to get only the object color
-mask = cv2.inRange(hsv_frame, lower_color, upper_color)
+    # Check if a frame was read successfully
+    if ret == True:
+        # Check if the ROI has been defined
+        if roi is not None:
+            # Update the tracker with the current frame
+            ret, box = tracker.update(frame)
 
-# Get the moments of the thresholded image
-M = cv2.moments(mask)
+            # Check if the tracker was able to update successfully
+            if ret:
+                # Draw a rectangle around the tracked object
+                (x, y, w, h) = [int(v) for v in box]
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-# Extract the x and y coordinates of the center of the object
-if M["m00"] != 0:
-    cx = int(M["m10"] / M["m00"])
-    cy = int(M["m01"] / M["m00"])
-else:
-    cx, cy = 0, 0
+        # Show the current frame
+        cv2.imshow("Tracking", frame)
 
-# Draw a bounding box or contour around the object
-cv2.rectangle(frame, (cx - 25, cy - 25), (cx + 25, cy + 25), (0, 255, 0), 2)
+        # Check if the 'q' key was pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        
+        # Check if the 'r' key was pressed
+        elif cv2.waitKey(1) & 0xFF == ord('r'):
+            # Reset the ROI
+            roi = None
+        
+        # Check if the 'space' or 'enter' key was pressed
+        elif cv2.waitKey(1) & 0xFF in [32, 13]:
+            # Define the ROI
+            roi = cv2.selectROI(frame, False)
 
-# Display the output image
-cv2.imshow("Tracked Object", frame)
-cv2.waitKey(1)
+            # Initialize the tracker with the ROI
+            tracker.init(frame, roi)
+    else:
+        break
 
-# Release the video or image sequence
+# Release the video capture object
 cap.release()
 
-# Close all windows
+# Destroy all windows
 cv2.destroyAllWindows()
+
+#1 
